@@ -23,13 +23,22 @@ public class Controller implements Initializable {
     Button uploadBtn;
 
     @FXML
-    ListView<String> filesList;
+    ListView<String> clientList;
+
+    @FXML
+    ListView<String> serverList;
 
     @FXML
     TextField textField;
 
     @FXML
     TextArea textArea;
+
+    @FXML
+    TextArea ClientFiles;
+
+    @FXML
+    TextArea ServerFiles;
 
     @FXML
     HBox upperPanel;
@@ -57,6 +66,9 @@ public class Controller implements Initializable {
             upperPanel.setManaged(false);
             bottomPanel.setVisible(true);
             bottomPanel.setManaged(true);
+            ServerFiles.setText("Server Files");
+            ClientFiles.setText("Client Files");
+
         }
     }
 
@@ -69,12 +81,17 @@ public class Controller implements Initializable {
                 while (true) {
                     AbstractBox box = Network.readObject();
                     System.out.println("Object is read");
-                    if (box instanceof Command){
-                        Command command = (Command) box;
-                        if (command.getId() == Commands.AUTH) setAuthorized(true);
-                        if (command.getId() == Commands.ERROR) textArea.appendText(command.getError().toString());
-                        if (command.getId() == Commands.SERVER_RESPONSE){
-                            textArea.appendText(command.getFileName() + " " + command.getMsg());
+                    if (box instanceof MessageBox){
+                        if (box instanceof AuthMessage) {
+                            setAuthorized(true);
+                        }
+                        if (box instanceof ErrorMessage) {
+                            ErrorMessage em = (ErrorMessage) box;
+                            textArea.appendText(em.getError().toString() + "\n");
+                        }
+                        if (box instanceof FileMessage){
+                            FileMessage fm = (FileMessage) box;
+                            textArea.appendText(fm.getFilename() + " " + fm.getMsg() + "\n");
                         }
                     }
                     if (box instanceof FileBox){
@@ -83,7 +100,7 @@ public class Controller implements Initializable {
                         Files.write(Paths.get("client_storage/" + fileBox.getFileName()),
                                 fileBox.getContent(),
                                 StandardOpenOption.CREATE);
-                        textArea.appendText("Файл " + fileBox.getFileName() + " успешно загружен в хранилище");
+                        textArea.appendText("Файл " + fileBox.getFileName() + " успешно загружен в хранилище" + "\n");
                     }
                 }
             } catch (ClassNotFoundException | IOException e) {
@@ -98,28 +115,19 @@ public class Controller implements Initializable {
     }
 
     public void refreshLocalFilesList() {
-        if (Platform.isFxApplicationThread()) {
-            try {
-                filesList.getItems().clear();
-                Files.list(Paths.get("client_storage")).map(p -> p.getFileName().toString()).forEach(o -> filesList.getItems().add(o));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            Platform.runLater(() -> {
-                try {
-                    filesList.getItems().clear();
-                    Files.list(Paths.get("client_storage")).map(p -> p.getFileName().toString()).forEach(o -> filesList.getItems().add(o));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
+        try {
+            clientList.getItems().clear();
+            Files.list(Paths.get("client_storage")).map(p -> p.getFileName().toString()).forEach(o -> clientList.getItems().add(o));
+            serverList.getItems().clear();
+            Files.list(Paths.get("server_storage")).map(p -> p.getFileName().toString()).forEach(o -> serverList.getItems().add(o));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
     public void downloadFile(){
         if (textField.getLength() > 0){
-            Network.sendMsg(new Command(Commands.RECEIVE_FILE, textField.getText()));
+            Network.sendMsg(new FileMessage(textField.getText()));
             textField.clear();
         }
     }

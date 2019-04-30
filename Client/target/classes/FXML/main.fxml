@@ -21,12 +21,19 @@
     </HBox>
 
     <VBox fx:id="bottomPanel" managed="false" visible="false" VBox.vgrow="ALWAYS">
-        <ListView fx:id="filesList" VBox.vgrow="ALWAYS" />
+        <HBox>
+            <TextArea fx:id="ClientFiles" editable="false"/>
+            <TextArea fx:id="ServerFiles" editable="false"/>
+        </HBox>
+        <HBox>
+            <ListView fx:id="clientList" VBox.vgrow="ALWAYS" />
+            <ListView fx:id="serverList" VBox.vgrow="ALWAYS" />
+        </HBox>
         <HBox>
             <TextField fx:id="textField" promptText="Введите имя файла" HBox.hgrow="ALWAYS" />
             <Button fx:id="downloadBtn" onAction="#downloadFile" text="Download" />
             <Button fx:id="uploadBtn" onAction="#uploadFile" text="Upload" />
         </HBox>
     </VBox>
-    <TextArea fx:id="textArea" editable="false" VBox.vgrow="ALWAYS" />
+    <TextArea fx:id="textArea" editable="false"/>
 </VBox>
