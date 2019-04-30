@@ -1,0 +1,3 @@
+public enum Commands {
+    ERROR, RECEIVE_FILE, SERVER_RESPONSE, UPLOAD_FILE, AUTH;
+}

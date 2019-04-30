@@ -1,0 +1,11 @@
+#btn1 {
+    -fx-font-size: 14px;
+    -fx-padding: 2;
+    -fx-background-color: red;
+    -fx-text-fill: greenyellow;
+}
+
+#btn1: hover {
+    -fx-background-color: yellowgreen;
+
+}
