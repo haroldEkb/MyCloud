@@ -23,7 +23,7 @@ public class Network {
 
     static void tryToAuth(String login, String password) {
         int hash = password.hashCode();
-        sendMsg(new Command(login + " " + hash, Commands.AUTH));
+        sendMsg(new AuthMessage(login + " " + hash));
     }
 
     public static void stop() {
