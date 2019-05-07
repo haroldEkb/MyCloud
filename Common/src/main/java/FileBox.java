@@ -3,15 +3,31 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class FileBox extends AbstractBox {
-    private static final int PACKAGE_VOLUME = 10485760;
-    private byte[] content;
+    public static final int PACKAGE_VOLUME = 2048;
+    private byte[] content = new byte[PACKAGE_VOLUME];
     private String fileName;
-    private int length;
+    private boolean isFirst = true;
+    private boolean isLast = true;
+
+    public FileBox(String fileName){
+        this.fileName = fileName;
+        this.isLast = false;
+    }
+
 
     public FileBox(Path path) throws IOException {
         fileName = path.getFileName().toString();
         content = Files.readAllBytes(path);
     }
+
+//    public FileBox(RandomAccessFile raf, boolean isLast) throws IOException {
+//        this.isLast = isLast;
+//        if (!isLast){
+//            raf.read(content, 0, PACKAGE_VOLUME);
+//        } else {
+//            content = new byte[(int)(raf.length() - raf.getFilePointer())];
+//        }
+//    }
 
     public byte[] getContent() {
         return content;
@@ -21,18 +37,23 @@ public class FileBox extends AbstractBox {
         return fileName;
     }
 
-//    static synchronized FileBox receiveFile(DataInputStream in) throws IOException {
-//        FileBox file = new FileBox();
-//        try{
-//            ObjectInputStream ois = new ObjectInputStream(in);
-//            file = (FileBox) ois.readObject();
-//            System.out.println("File transfer completed");
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } catch (ClassNotFoundException e) {
-//            e.printStackTrace();
-//        }
-//        return file;
-//    }
+    public boolean isFirst(){
+        return isFirst;
+    }
 
+    public boolean isLast() {
+        return isLast;
+    }
+
+    public static void writeInBox(FileBox fb, RandomAccessFile raf, boolean isLast) throws IOException {
+        if (raf.getFilePointer() != 0) fb.isFirst = false;
+        fb.isLast = isLast;
+        if (!isLast){
+            raf.read(fb.content, 0, PACKAGE_VOLUME);
+        } else {
+            fb.content = new byte[(int)(raf.length() - raf.getFilePointer())];
+            raf.read(fb.content);
+            //raf.read(fb.content, 0, fb.content.length);
+        }
+    }
 }

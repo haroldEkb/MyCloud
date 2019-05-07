@@ -10,24 +10,6 @@ public class InputHandler extends ChannelInboundHandlerAdapter {
     private boolean isAuthorised = false;
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (!isAuthorised) {
-            if (msg instanceof MessageBox){
-                MessageBox mb = (MessageBox) msg;
-                System.out.println("auth try");
-                if (mb instanceof AuthMessage){
-                    AuthMessage am = (AuthMessage) mb;
-                    String[] user = am.getMsg().split(" ");
-                    if (AuthService.checkUserByLoginAndPass(user[0], Integer.parseInt(user[1]))){
-                        isAuthorised = true;
-                        System.out.println("auth success");
-                        ctx.writeAndFlush(new AuthMessage("/authOk"));
-                    } else {
-                        System.out.println("auth failed");
-                        ctx.writeAndFlush(new ErrorMessage(Errors.WRONG_LOGIN_OR_PASSWORD));
-                    }
-                }
-            }
-        } else
         try {
             if (msg == null) {
                 return;
@@ -49,10 +31,18 @@ public class InputHandler extends ChannelInboundHandlerAdapter {
             }
             if (msg instanceof FileBox) {
                 FileBox fb = (FileBox) msg;
-                Files.write(Paths.get("server_storage/" + fb.getFileName()),
-                        fb.getContent(),
-                        StandardOpenOption.CREATE);
-                ctx.writeAndFlush(new FileMessage(fb.getFileName(), "доставлен успешно"));
+                if (fb.isFirst()){
+                    Files.write(Paths.get("server_storage/" + fb.getFileName()),
+                            fb.getContent(),
+                            StandardOpenOption.CREATE);
+                } else {
+                    Files.write(Paths.get("server_storage/" + fb.getFileName()),
+                            fb.getContent(),
+                            StandardOpenOption.APPEND);
+                }
+                if (fb.isLast()){
+                    ctx.writeAndFlush(new FileMessage(fb.getFileName(), "доставлен успешно"));
+                }
             }
         } finally {
             ReferenceCountUtil.release(msg);

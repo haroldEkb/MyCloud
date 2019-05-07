@@ -10,6 +10,7 @@ import java.io.*;
 import java.net.Socket;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ResourceBundle;
@@ -101,6 +102,7 @@ public class Controller implements Initializable {
                                 fileBox.getContent(),
                                 StandardOpenOption.CREATE);
                         textArea.appendText("Файл " + fileBox.getFileName() + " успешно загружен в хранилище" + "\n");
+                        refreshLocalFilesList();
                     }
                 }
             } catch (ClassNotFoundException | IOException e) {
@@ -135,7 +137,25 @@ public class Controller implements Initializable {
     public void uploadFile() {
         if (textField.getLength() > 0) {
             try {
-                Network.sendMsg(new FileBox(Paths.get("client_storage/" + textField.getText())));
+                Path path = Paths.get("client_storage/" + textField.getText());
+                System.out.println(path.getFileName());
+                System.out.println(path.toFile().getCanonicalPath());
+                System.out.println(path.toFile().getAbsolutePath());
+                if (Files.size(path) <= FileBox.PACKAGE_VOLUME){
+                    FileBox fb = new FileBox(path);
+                    Network.sendMsg(fb);
+                } else{
+                    FileBox fb = new FileBox(path.getFileName().toString());
+                    System.out.println(fb.getFileName());
+                    RandomAccessFile raf = new RandomAccessFile("client_storage/" + textField.getText(), "r");
+                    do {
+                        FileBox.writeInBox(fb, raf, false);
+                        Network.sendMsg(fb);
+                    } while ((int) raf.length() - raf.getFilePointer() > FileBox.PACKAGE_VOLUME);
+                    FileBox.writeInBox(fb, raf, true);
+                    Network.sendMsg(fb);
+                    raf.close();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
