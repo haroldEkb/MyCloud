@@ -3,7 +3,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class FileBox extends AbstractBox {
-    public static final int PACKAGE_VOLUME = 2048;
+    public static final int PACKAGE_VOLUME = 10*1024*1024;
     private byte[] content = new byte[PACKAGE_VOLUME];
     private String fileName;
     private boolean isFirst = true;

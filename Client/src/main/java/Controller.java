@@ -151,7 +151,7 @@ public class Controller implements Initializable {
                     do {
                         FileBox.writeInBox(fb, raf, false);
                         Network.sendMsg(fb);
-                    } while ((int) raf.length() - raf.getFilePointer() > FileBox.PACKAGE_VOLUME);
+                    } while (raf.length() - raf.getFilePointer() > (long)FileBox.PACKAGE_VOLUME);
                     FileBox.writeInBox(fb, raf, true);
                     Network.sendMsg(fb);
                     raf.close();
