@@ -1,6 +1,6 @@
 public class ErrorMessage extends MessageBox {
+    //сообщение об ошибке
     private Errors error;
-    private String filename;
 
     public ErrorMessage(Errors error){
         this.error = error;

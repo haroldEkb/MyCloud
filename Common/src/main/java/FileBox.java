@@ -3,7 +3,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class FileBox extends AbstractBox {
-    public static final int PACKAGE_VOLUME = 10*1024*1024;
+    //Служит для передачи файлов
+
+    public static final int PACKAGE_VOLUME = 20*1024*1024;
     private byte[] content = new byte[PACKAGE_VOLUME];
     private String fileName;
     private boolean isFirst = true;
@@ -19,15 +21,6 @@ public class FileBox extends AbstractBox {
         fileName = path.getFileName().toString();
         content = Files.readAllBytes(path);
     }
-
-//    public FileBox(RandomAccessFile raf, boolean isLast) throws IOException {
-//        this.isLast = isLast;
-//        if (!isLast){
-//            raf.read(content, 0, PACKAGE_VOLUME);
-//        } else {
-//            content = new byte[(int)(raf.length() - raf.getFilePointer())];
-//        }
-//    }
 
     public byte[] getContent() {
         return content;
@@ -53,7 +46,6 @@ public class FileBox extends AbstractBox {
         } else {
             fb.content = new byte[(int)(raf.length() - raf.getFilePointer())];
             raf.read(fb.content);
-            //raf.read(fb.content, 0, fb.content.length);
         }
     }
 }

@@ -16,26 +16,27 @@ public class AuthService {
         }
     }
 
-    public static boolean checkUserByLoginAndPass(String login, int pass){
-        String sql = String.format("SELECT password FROM mane\n" +
-                "WHERE login = '%s'", login);
+    public static int getUserIDByLoginAndPass(String login, int pass){
+        String sql = String.format("SELECT id FROM mane\n" +
+                "WHERE login = '%s'\n" +
+                "AND password = '%s'", login, pass);
         try {
             ResultSet rs = statement.executeQuery(sql);
 
             if(rs.next()){
-                int dbHash = rs.getInt(1);
-                System.out.println(pass + " " + dbHash);
-                return pass == dbHash;
+                int dbID = rs.getInt(1);
+                System.out.println(dbID);
+                return dbID;
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return false;
+        return 0;
     }
 
-    public static void addUser(String login, String pass, String nick){
-        String sql = String.format("INSERT INTO mane (login, password, nickname)\n" +
-                "VALUES ('%s','%s', '%s')", login, pass.hashCode(), nick);
+    public static void addUser(String login, int pass){
+        String sql = String.format("INSERT INTO mane (login, password)\n" +
+                "VALUES ('%s','%s')", login, pass);
         try {
             statement.execute(sql);
         } catch (SQLException e) {

@@ -1,4 +1,3 @@
-import java.util.Vector;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -11,9 +10,12 @@ import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 
-public class Server {
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
-    //private Vector<ClientHandler> clients;
+public class Server {
+    private static Set<Integer> users = Collections.synchronizedSet(new HashSet<>());
 
     public void run() throws Exception {
         EventLoopGroup mainGroup = new NioEventLoopGroup();
@@ -44,20 +46,13 @@ public class Server {
         }
     }
 
-//    public void broadcastMsg(ClientHandler client, String msg) {
-//        for (ClientHandler o: clients) {
-//            o.sendMsg(dateFormat.format(date) + "\n" + msg);
-//        }
-//    }
-//
-//    public ClientHandler getClientByNick(String nick){
-//        ClientHandler client = null;
-//        for (ClientHandler c:clients) {
-//            if (c.getNick().equals(nick)){
-//                client = c;
-//            }
-//        }
-//        return client;
-//    }
+    public static void addUser(int id){
+        users.add(id);
+        System.out.println(users);
+    }
+
+    public static boolean isAuthorized(int id){
+        return users.contains(id);
+    }
 
 }
